@@ -1583,6 +1583,44 @@ class RegularClass(object):
     assertEqual('bar', foo.bar)
     assertEqual('bar', foo2.bar)
 
+  def test_named_returns_mock_instance(self):
+      mymock = flexmock()
+      assertEqual(mymock, mymock.named('foo'))
+
+  def test_can_assign_name_to_mock(self):
+    assertEqual(repr(flexmock().named('foo')), '<flexmock.MockClass name=foo>')
+
+  def test_can_assign_name_to_mock_several_times_but_only_the_last_one_sticks(self):
+    assertEqual(repr(flexmock().named('foo').named('bar')), '<flexmock.MockClass name=bar>')
+
+  def test_repr_includes_type_when_mocking_new_style_class(self):
+    assertEqual(repr(flexmock(NewStyleClass)), '<flexmock.Mock spec=NewStyleClass>')
+
+  def test_repr_includes_type_when_mocking_old_style_class(self):
+    assertEqual(repr(flexmock(OldStyleClass)), '<flexmock.Mock spec=OldStyleClass>')
+
+  def test_repr_includes_name_and_type_when_mocking_new_style_class(self):
+    class Foo(object): pass
+    assertEqual(repr(flexmock(Foo).named('bar')), '<flexmock.Mock name=bar, spec=Foo>')
+
+  def test_repr_includes_name_and_type_when_mocking_old_style_class(self):
+    class Foo: pass
+    assertEqual(repr(flexmock(Foo).named('bar')), '<flexmock.Mock name=bar, spec=Foo>')
+
+  def test_new_style_class_level_mock_can_be_named_several_times_but_only_the_last_one_sticks(self):
+    class Foo(object): pass
+    foo = flexmock(Foo).named('foo')
+    bar = flexmock(Foo).named('bar')
+    assertEqual(foo, bar)
+    assertEqual(repr(bar), '<flexmock.Mock name=bar, spec=Foo>')
+
+  def test_old_style_class_level_mock_can_be_named_several_times_but_only_the_last_one_sticks(self):
+    class Foo: pass
+    foo = flexmock(Foo).named('foo')
+    bar = flexmock(Foo).named('bar')
+    assertEqual(foo, bar)
+    assertEqual(repr(bar), '<flexmock.Mock name=bar, spec=Foo>')
+
 
 class TestFlexmockUnittest(RegularClass, unittest.TestCase):
   def tearDown(self):

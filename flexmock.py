@@ -684,6 +684,21 @@ class Mock(object):
     else:
       yield self
 
+  def __repr__(self):
+    mock_info = []
+    if hasattr(self, '_assigned_name'):
+        mock_info.append('name=%s' % getattr(self, '_assigned_name', None))
+    if inspect.isclass(self._object):
+        mock_info.append('spec=%s' % self._object.__name__)
+    if mock_info:
+        return '<%s %s>' % (self.__module__ + "." + self.__class__.__name__, str.join(', ', mock_info))
+
+    return object.__repr__(self)
+
+  def named(self, value):
+    setattr(self, '_assigned_name', value)
+    return self
+
   def should_receive(self, name):
     """Replaces the specified attribute with a fake.
 
