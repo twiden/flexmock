@@ -56,6 +56,11 @@ def assertEqual(expected, received, msg=''):
     raise AssertionError('%s != %s : %s' % (expected, received, msg))
 
 
+def assertIn(member, container):
+    if member not in container:
+        raise AssertionError('%s not found in %s' % (member, container))
+
+
 class RegularClass(object):
 
   def _tear_down(self):
@@ -1588,38 +1593,24 @@ class RegularClass(object):
       assertEqual(mymock, mymock.named('foo'))
 
   def test_can_assign_name_to_mock(self):
-    assertEqual(repr(flexmock().named('foo')), '<flexmock.MockClass name=foo>')
+    assertIn('name=foo', repr(flexmock().named('foo')))
 
   def test_can_assign_name_to_mock_several_times_but_only_the_last_one_sticks(self):
-    assertEqual(repr(flexmock().named('foo').named('bar')), '<flexmock.MockClass name=bar>')
+    assertIn('name=bar', repr(flexmock().named('foo').named('bar')))
 
   def test_repr_includes_type_when_mocking_new_style_class(self):
-    assertEqual(repr(flexmock(NewStyleClass)), '<flexmock.Mock spec=NewStyleClass>')
+    assertIn('spec=NewStyleClass', repr(flexmock(NewStyleClass)))
 
   def test_repr_includes_type_when_mocking_old_style_class(self):
-    assertEqual(repr(flexmock(OldStyleClass)), '<flexmock.Mock spec=OldStyleClass>')
+    assertIn('spec=OldStyleClass', repr(flexmock(OldStyleClass)))
 
-  def test_repr_includes_name_and_type_when_mocking_new_style_class(self):
+  def test_repr_includes_name_and_type(self):
     class Foo(object): pass
-    assertEqual(repr(flexmock(Foo).named('bar')), '<flexmock.Mock name=bar, spec=Foo>')
-
-  def test_repr_includes_name_and_type_when_mocking_old_style_class(self):
-    class Foo: pass
-    assertEqual(repr(flexmock(Foo).named('bar')), '<flexmock.Mock name=bar, spec=Foo>')
-
-  def test_new_style_class_level_mock_can_be_named_several_times_but_only_the_last_one_sticks(self):
-    class Foo(object): pass
-    foo = flexmock(Foo).named('foo')
-    bar = flexmock(Foo).named('bar')
-    assertEqual(foo, bar)
-    assertEqual(repr(bar), '<flexmock.Mock name=bar, spec=Foo>')
-
-  def test_old_style_class_level_mock_can_be_named_several_times_but_only_the_last_one_sticks(self):
-    class Foo: pass
-    foo = flexmock(Foo).named('foo')
-    bar = flexmock(Foo).named('bar')
-    assertEqual(foo, bar)
-    assertEqual(repr(bar), '<flexmock.Mock name=bar, spec=Foo>')
+    assertIn('spec=Foo', repr(flexmock(Foo).named('bar')))
+    assertIn('name=bar', repr(flexmock(Foo).named('bar')))
+    class Bar: pass
+    assertIn('spec=Bar', repr(flexmock(Bar).named('bar')))
+    assertIn('name=bar', repr(flexmock(Bar).named('bar')))
 
 
 class TestFlexmockUnittest(RegularClass, unittest.TestCase):

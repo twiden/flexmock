@@ -691,7 +691,8 @@ class Mock(object):
     if inspect.isclass(self._object):
         mock_info.append('spec=%s' % self._object.__name__)
     if mock_info:
-        return '<%s %s>' % (self.__module__ + "." + self.__class__.__name__, str.join(', ', mock_info))
+        module = '%s.%s' % (self.__module__, self.__class__.__name__)
+        return '<%s %s>' % (module, str.join(', ', mock_info))
 
     return object.__repr__(self)
 
