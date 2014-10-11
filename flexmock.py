@@ -52,6 +52,16 @@ except NameError:
       if x: return True
     return False
 
+try:
+    next
+except NameError:
+    # Python 2.5 sucks
+    def next(iterable, default):
+        try:
+            return iterable.next()
+        except StopIteration:
+            return default
+
 
 class FlexmockError(Exception):
   pass
@@ -696,10 +706,6 @@ class Mock(object):
 
     return object.__repr__(self)
 
-  def named(self, value):
-    setattr(self, '_assigned_name', value)
-    return self
-
   def should_receive(self, name):
     """Replaces the specified attribute with a fake.
 
@@ -1178,7 +1184,7 @@ def flexmock_teardown():
       _getattr(expectation, 'verify')()
 
 
-def flexmock(spec=None, **kwargs):
+def flexmock(*args, **kwargs):
   """Main entry point into the flexmock API.
 
   This function is used to either generate a new fake object or take
@@ -1197,17 +1203,24 @@ def flexmock(spec=None, **kwargs):
 
   Args:
     - spec: object (or class or module) to mock
+    - name: human friendly name of mock
     - kwargs: method/return_value pairs to attach to the object
 
   Returns:
     Mock object if no spec is provided. Otherwise return the spec object.
   """
+  is_spec = lambda arg: type(arg) not in (str, unicode)
+  spec = next((a for a in args if is_spec(a)), None)
+  name = next((a for a in args if not is_spec(a)), None)
   if spec is not None:
-    return _create_partial_mock(spec, **kwargs)
+    mock = _create_partial_mock(spec, **kwargs)
   else:
     # use this intermediate class to attach properties
     klass = type('MockClass', (Mock,), {})
-    return klass(**kwargs)
+    mock = klass(**kwargs)
+  if name:
+    setattr(mock, '_assigned_name', name)
+  return mock
 
 
 # RUNNER INTEGRATION
