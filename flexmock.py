@@ -1209,9 +1209,9 @@ def flexmock(*args, **kwargs):
   Returns:
     Mock object if no spec is provided. Otherwise return the spec object.
   """
-  is_spec = lambda arg: type(arg) not in (str, unicode)
-  spec = next((a for a in args if is_spec(a)), None)
-  name = next((a for a in args if not is_spec(a)), None)
+  is_text = lambda arg: type(arg) in (str, unicode)
+  spec = next((arg for arg in args if not is_text(arg)), None)
+  name = next((arg for arg in args if is_text(arg)), None)
   if spec is not None:
     mock = _create_partial_mock(spec, **kwargs)
   else:
